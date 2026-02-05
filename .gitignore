@@ -1,9 +1,14 @@
 .env
+.env.*
 key.json
 gmail_token.json
 client_secret.json
 local_data/
 audio_summary/
 word_cloud/
+app screen shots/
+AI-Newsletter-Summarizer/
+__pycache__/
+*.pyc
 *.pyc
 __pycache__/

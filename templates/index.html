@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Newsletter Summarizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Today in Your Inbox</p>
+          <h1>Choose Any Sender, Then Summarize</h1>
+          <p class="subhead">
+            Select any senders you want to process from today. Summaries are
+            generated only after you confirm.
+          </p>
+        </div>
+        <div class="hero-card">
+          <div class="metric">
+            <span class="metric-label">Senders today</span>
+            <span class="metric-value">{{ senders|length }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Summaries ready</span>
+            <span class="metric-value">{{ summaries|length }}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Storage</span>
+            <span class="metric-value">Local</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel">
+        <form method="post" action="/summarize">
+          <div class="panel-header">
+            <div>
+              <h2>Today’s Senders</h2>
+              <p>Pick one or more senders to summarize.</p>
+            </div>
+            <button class="primary" type="submit">Summarize Selected</button>
+          </div>
+
+          {% if fallback_used %}
+          <div class="empty">
+            No exact “today” matches found. Showing the last 24 hours instead.
+          </div>
+          {% endif %}
+
+          {% if senders|length == 0 %}
+          <div class="empty">
+            No newsletters found for today yet.
+          </div>
+          {% else %}
+          <div class="sender-grid">
+            {% for sender, count in senders %}
+            <label class="sender-card">
+              <input
+                type="checkbox"
+                name="senders"
+                value="{{ sender }}"
+                {% if sender in selected_senders %}checked{% endif %}
+              />
+              <span class="sender-name">{{ sender }}</span>
+              <span class="sender-count">{{ count }} emails</span>
+            </label>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </form>
+      </section>
+
+      <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Summaries</h2>
+              <p>Results for the senders you selected today.</p>
+            </div>
+          </div>
+
+        {% if summaries|length == 0 %}
+        <div class="empty">
+          No summaries yet. Select senders and click “Summarize Selected”.
+        </div>
+        {% else %}
+        <div class="grid">
+          {% for r in summaries %}
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <p class="sender">{{ r.sender or "Unknown Sender" }}</p>
+                <p class="subject">{{ r.subject or "No subject" }}</p>
+              </div>
+              <span class="date">{{ r.received_day or "Unknown date" }}</span>
+            </div>
+            <p class="summary">
+              {{ r.body_summary or "No summary available yet." }}
+            </p>
+            {% if r.tags %}
+            <p class="tags">{{ r.tags }}</p>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </body>
+</html>
